@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EchoSense - Assistive Sound Awareness & Safety Portal</title>
+  <meta name="description" content="Assistive sound awareness and emergency alert hub powered by YAMNet on ESP32 sensing and ESP8266 sensory alert IoT units.">
+  <link rel="stylesheet" href="/static/styles/main.css">
+  <link rel="stylesheet" href="/static/styles/components.css">
+  <link rel="stylesheet" href="/static/styles/animations.css">
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="22"/>
+          <circle cx="12" cy="12" r="9" stroke-opacity="0.2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">EchoSense</h1>
+        <p class="brand-subtitle">Assistive Safety Hub</p>
+      </div>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item active" data-view="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"/>
+          <rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/>
+          <rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        <span>Dashboard</span>
+      </li>
+      <li class="nav-item" data-view="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h4l3 8 4-16 3 8h4"/>
+        </svg>
+        <span>Events</span>
+      </li>
+      <li class="nav-item" data-view="contacts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Contacts</span>
+      </li>
+      <li class="nav-item" data-view="devices">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="12" x="3" y="4" rx="2"/>
+          <line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+        <span>Devices</span>
+      </li>
+      <li class="nav-item" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span>Settings</span>
+      </li>
+      <li class="nav-item" data-view="dev-test">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m14 2 4 4L7 17H3v-4L14 2z"/>
+          <path d="m3 22 18-18"/>
+        </svg>
+        <span>Bench Test</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div>EchoSense v1.1.0</div>
+      <div id="backend-status-text">Backend: Connected</div>
+    </div>
+  </aside>
+
+  <!-- App Wrapper -->
+  <div class="main-wrapper">
+    
+    <!-- Top App Bar -->
+    <header class="top-bar">
+      <div class="header-left" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <h2 class="page-title" id="current-view-title" style="margin-bottom:0;">Dashboard</h2>
+        <div id="lan-mobile-badge" class="lan-mobile-badge" title="Connect from mobile on same Wi-Fi network (Click to Copy)" onclick="app.copyMobileUrl()">
+          <span class="lan-icon">📱</span>
+          <span class="lan-title">Mobile LAN:</span>
+          <code id="lan-mobile-url">http://192.168.29.19:8000</code>
+          <span class="lan-copy-hint">Copy 📋</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Audio Source Switcher Segmented Control -->
+        <div class="audio-source-switcher" title="Select Primary Ingestion Source for YAMNet AI">
+          <button id="src-btn-laptop" class="source-toggle-btn active" onclick="app.selectAudioSource('HOST_LAPTOP_MIC')">
+            <span class="src-icon">🎙️</span>
+            <span class="src-text">Host Laptop Mic</span>
+            <span class="src-badge">MAIN</span>
+          </button>
+          <button id="src-btn-esp32" class="source-toggle-btn" onclick="app.selectAudioSource('ESP32_INMP441')">
+            <span class="src-icon">📡</span>
+            <span class="src-text">ESP32 (INMP441)</span>
+          </button>
+        </div>
+
+        <button id="btn-reset-alert" class="btn btn-outline btn-sm" onclick="app.resetAlert()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Reset Alert
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="app.triggerSosManual()">
+          🚨 Physical SOS
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- Active Emergency Banner (Conditional) -->
+      <div id="emergency-banner" class="emergency-banner glass-panel">
+        <div class="banner-left">
+          <div class="banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <div id="emergency-title" class="banner-title">CRITICAL ALERT DETECTED</div>
+            <div class="banner-meta">
+              <span>Event: <strong id="emergency-event-label">-</strong></span>
+              <span>Confidence: <strong id="emergency-confidence">-</strong></span>
+              <span>WhatsApp: <strong id="emergency-contacts-notified">-</strong></span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline" onclick="app.resetAlert()">Acknowledge & Clear</button>
+      </div>
+
+      <!-- Real-Time System Status Strip -->
+      <section class="system-status-strip glass-panel">
+        <div class="status-group">
+          <span class="status-label">ESP32 Sensor:</span>
+          <span class="status-pill"><span id="dot-esp32" class="status-dot dot-offline"></span><span id="text-esp32">Offline</span></span>
+        </div>
+        <div class="status-group">
+          <span class="status-label">ESP8266 Alert:</span>
+          <span class="status-pill"><span id="dot-esp8266" class="status-dot dot-offline"></span><span id="text-esp8266">Offline</span></span>
+        </div>
+        <div class="status-group">
+          <span class="status-label">Audio Source:</span>
+          <span class="status-pill"><span id="dot-mic" class="status-dot dot-online"></span><span id="text-mic">Ready</span></span>
+        </div>
+        <div class="status-group">
+          <span class="status-label">YAMNet AI:</span>
+          <span class="status-pill"><span id="dot-ai" class="status-dot dot-online"></span><span id="text-ai">Running (16kHz)</span></span>
+        </div>
+        <div class="status-group">
+          <span class="status-label">Portal:</span>
+          <span class="status-pill"><span id="dot-backend" class="status-dot dot-online"></span><span id="text-backend">Connected</span></span>
+        </div>
+      </section>
+
+      <!-- VIEW 1: DASHBOARD -->
+      <section id="view-dashboard" class="view-section active-view">
+
+        <!-- Insightful Analytics Row -->
+        <div class="analytics-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Sounds Evaluated</span>
+              <span class="kpi-badge">Live</span>
+            </div>
+            <div id="kpi-sounds-count" class="kpi-value">0</div>
+            <div class="kpi-subtext">Continuous audio analysis windows</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Active Safety Status</span>
+              <span id="kpi-status-badge" class="kpi-badge" style="color:#34d399; background:rgba(52,211,153,0.12);">NORMAL</span>
+            </div>
+            <div id="kpi-safety-state" class="kpi-value" style="font-size:1.5rem; color:#34d399;">Normal</div>
+            <div class="kpi-subtext">Real-time situational awareness</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Suppression Filter</span>
+              <span class="kpi-badge" style="color:#22d3ee; background:rgba(34,211,238,0.12);">Anti-False</span>
+            </div>
+            <div id="kpi-suppression-rate" class="kpi-value">98.9%</div>
+            <div class="kpi-subtext">Transient noise false-alarm filter</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Pipeline Latency</span>
+              <span class="kpi-badge" style="color:#a855f7; background:rgba(168,85,247,0.12);">Real-Time</span>
+            </div>
+            <div id="kpi-latency" class="kpi-value">~38 ms</div>
+            <div class="kpi-subtext">End-to-end inference & dispatch</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          
+          <!-- Live Acoustic Evaluation Panel -->
+          <div class="sound-panel glass-panel">
+            <div class="panel-header">
+              <span class="panel-title">Real-Time Acoustic Engine</span>
+              <span id="sound-status-tag" class="sound-status-tag tag-normal">Normal</span>
+            </div>
+
+            <div class="sound-display-hero">
+              <div>
+                <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Current Detected Sound</div>
+                <div id="current-sound-text" class="current-sound-label">Monitoring</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Confidence</div>
+                <div id="confidence-percentage" style="font-size:2rem; font-weight:700; font-family:var(--font-mono); color:#38bdf8;">--%</div>
+              </div>
+            </div>
+
+            <!-- Real-Time Audio Oscilloscope & Spectrum Visualizer Canvas -->
+            <div class="visualizer-card">
+              <div class="visualizer-header">
+                <span>Live Audio Waveform & Spectrum Analyzer</span>
+                <span id="visualizer-mode-badge" style="color:#22d3ee; font-weight:600;">Active 60 FPS</span>
+              </div>
+              <canvas id="audio-visualizer-canvas" class="visualizer-canvas" width="600" height="90"></canvas>
+            </div>
+
+            <!-- Audio Energy Level (RMS) -->
+            <div class="meter-row" style="margin-top:14px;">
+              <div class="meter-header">
+                <span>Audio Energy (RMS)</span>
+                <span id="rms-dbfs-value" style="font-family:var(--font-mono);">-54 dBFS</span>
+              </div>
+              <div class="meter-track">
+                <div id="meter-fill" class="meter-fill" style="width: 15%;"></div>
+              </div>
+            </div>
+
+            <!-- Validation Progress -->
+            <div class="validation-bar-container">
+              <div class="validation-header">
+                <span>Temporal Persistence Gate</span>
+                <span id="validation-counter-text" style="font-family:var(--font-mono); color:#22d3ee;">0 / 3 confirmations</span>
+              </div>
+              <div class="validation-track">
+                <div id="validation-fill" class="validation-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Metrics Quick Row -->
+            <div class="metrics-row">
+              <div class="metric-card">
+                <div class="metric-label">Signal SNR</div>
+                <div id="metric-snr" class="metric-value">18.4 dB</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Raw YAMNet Class</div>
+                <div id="metric-raw-class" class="metric-value" style="font-size:1rem; font-family:var(--font-main);">Speech</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Audio Sample Rate</div>
+                <div class="metric-value">16 kHz Mono</div>
+              </div>
+            </div>
+
+            <!-- Live YAMNet Multi-Class Probability Feed -->
+            <div class="yamnet-predictions-card">
+              <div class="yamnet-pred-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="yamnet-pulse-indicator"></span>
+                  <span style="font-weight:600; font-size:0.85rem; letter-spacing:0.02em;">Live YAMNet 521-Class Detection Feed</span>
+                </div>
+                <span id="active-source-badge" class="badge-source-tag">🎙️ Host Laptop Mic</span>
+              </div>
+              <div id="top-predictions-container" class="predictions-list">
+                <div style="font-size:0.82rem; color:var(--text-muted); text-align:center; padding:10px;">Awaiting audio stream inference...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Hardware Status & Quick History -->
+          <div style="display:flex; flex-direction:column; gap:24px;">
+
+            <!-- WhatsApp Emergency Alerting Status Panel -->
+            <div class="glass-panel" style="padding:22px;">
+              <div class="panel-header" style="margin-bottom:12px;">
+                <span class="panel-title">WhatsApp Safety Dispatcher</span>
+                <span id="whatsapp-provider-badge" class="status-pill" style="font-size:0.75rem; color:#34d399;">Active (Verified)</span>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">
+                Automated objective alerts are sent to emergency contacts on critical events with rate-limiting protection:
+              </p>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+                <div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Configured Contacts</div>
+                  <div id="quick-contacts-count" style="font-size:1.1rem; font-weight:700; color:#38bdf8;">2 Contacts Active</div>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="app.sendTestWhatsApp()" title="Send verification WhatsApp alert to configured contacts">
+                  📲 Test WhatsApp
+                </button>
+              </div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">
+                <span>Cooldown Rate Limit: <strong>15s Anti-Spam</strong></span> &bull; 
+                <span>SOS Bypass: <strong>Enabled</strong></span>
+              </div>
+            </div>
+            
+            <!-- Quick Hardware Actuator Control & Virtual WS2812 Ring -->
+            <div class="glass-panel" style="padding:22px;">
+              <div class="panel-header" style="margin-bottom:12px;">
+                <span class="panel-title">Sensory Alert Unit & WS2812 Ring</span>
+                <span id="virtual-ring-active-badge" class="status-pill" style="font-size:0.75rem; color:#34d399;">WS2812 Active</span>
+              </div>
+
+              <!-- Live Virtual NeoPixel 16-LED Ring -->
+              <div id="virtual-led-container" class="virtual-led-wrapper">
+                <div id="virtual-led-ring" class="led-ring-outer">
+                  <!-- 16 virtual LEDs will be injected and animated here -->
+                  <div class="led-ring-center-display">
+                    <span id="ring-center-icon" class="center-icon">🟢</span>
+                    <span id="ring-center-state" class="center-state-text">Ready</span>
+                  </div>
+                </div>
+                <div class="virtual-led-details">
+                  <div class="led-details-header">
+                    <span class="led-details-title">Hardware RGB State</span>
+                    <span id="led-mode-badge" class="led-details-mode">GREEN_SOLID</span>
+                  </div>
+                  <div class="led-color-swatch-row">
+                    <span id="led-color-swatch" class="led-color-swatch"></span>
+                    <span id="led-color-hex" style="font-family:var(--font-mono); font-size:0.8rem; font-weight:600;">RGB(0, 255, 80)</span>
+                  </div>
+                  <div class="led-smooth-indicator">
+                    <span>✨ Exponential 30 FPS Lerp Active</span>
+                  </div>
+                </div>
+              </div>
+
+              <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:12px;">
+                Trigger ambient sensory states and smooth color crossfades on both physical hardware and virtual ring:
+              </p>
+              <div class="hardware-quick-actions">
+                <button class="btn-chip" onclick="app.devTrigger('TEST_NORMAL')">🟢 Green Solid</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([255,185,0], 'YELLOW_PULSE', 'Doorbell Chime', 2, 'SHORT_BEEP')">🟡 Doorbell Amber</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([255,125,0], 'YELLOW_FLASH', 'Knock Impact', 2, 'SHORT_BEEP')">🟠 Knock Tangerine</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([0,220,255], 'CYAN_BREATH', 'Water Running', 2, 'OFF')">💧 Cyan Water</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([175,55,255], 'PURPLE_GLOW', 'Pet Vocalization', 3, 'OFF')">🟣 Violet Pets</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([255,145,75], 'PEACH_SPARKLE', 'Clapping / Cheer', 3, 'OFF')">🍑 Peach Gold</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([0,160,255], 'BLUE_BREATH', 'Speech / Voice', 4, 'OFF')">🌊 Sky Blue Speech</button>
+                <button class="btn-chip" onclick="app.triggerLedColor([75,105,255], 'INDIGO_CHASE', 'Music Melody', 4, 'OFF')">🎵 Indigo Comet</button>
+                <button class="btn-chip" onclick="app.devTrigger('TEST_CRITICAL')">🔴 Red Alarm</button>
+                <button class="btn-chip" onclick="app.devTrigger('TEST_GLASS_BREAK')">✨ Glass Sparkle</button>
+                <button class="btn-chip" onclick="app.devTrigger('TEST_STROBE')">🚨 SOS Beacon</button>
+                <button class="btn-chip" onclick="app.devTrigger('TEST_BUZZER')">🔔 Test Buzzer</button>
+              </div>
+            </div>
+
+            <!-- Quick Recent Events Feed -->
+            <div class="glass-panel" style="padding:22px;">
+              <div class="panel-header" style="margin-bottom:14px;">
+                <span class="panel-title">Recent Events Feed</span>
+                <button class="btn btn-outline btn-sm" onclick="app.switchView('events')">View All</button>
+              </div>
+              <div class="table-wrapper">
+                <table class="modern-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Event</th>
+                      <th>Severity</th>
+                      <th>Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quick-events-table-body">
+                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No events recorded yet</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 2: EVENTS HISTORY -->
+      <section id="view-events" class="view-section">
+        <div class="glass-panel" style="padding:28px;">
+          <div class="panel-header" style="margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+            <div>
+              <span class="panel-title">Audit Trail & Sound Event Log</span>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Historical record of all classified acoustic events and emergency SOS triggers.</p>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="event-search-input" class="form-input" style="padding:6px 12px; font-size:0.85rem; min-width:180px;" placeholder="Search events..." oninput="app.searchEvents(this.value)">
+              <select id="event-severity-filter" class="form-input" style="padding:6px 12px; font-size:0.85rem;" onchange="app.filterEvents(this.value)">
+                <option value="">All Severities</option>
+                <option value="SOS">SOS (Priority 0)</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="WARNING">Warning</option>
+                <option value="INFO">Info</option>
+                <option value="NORMAL">Normal</option>
+              </select>
+              <button class="btn btn-outline btn-sm" onclick="app.exportEventsCSV()" title="Export log as CSV">Export CSV</button>
+              <button class="btn btn-outline btn-sm" onclick="app.exportEventsJSON()" title="Export log as JSON">Export JSON</button>
+              <button class="btn btn-outline btn-sm" onclick="app.fetchEvents()">Refresh</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Display Label</th>
+                  <th>Raw Label</th>
+                  <th>Confidence</th>
+                  <th>Severity</th>
+                  <th>Device</th>
+                  <th>WhatsApp Status</th>
+                </tr>
+              </thead>
+              <tbody id="full-events-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CONTACTS MANAGEMENT -->
+      <section id="view-contacts" class="view-section">
+        <div class="glass-panel" style="padding:28px;">
+          <div class="panel-header" style="margin-bottom:20px;">
+            <div>
+              <span class="panel-title">WhatsApp Emergency Contacts</span>
+              <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">Configure up to 5 verified WhatsApp recipients automatically notified during Critical or SOS emergencies.</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-outline btn-sm" onclick="app.openTestNotificationModal()">Test Notification</button>
+              <button id="btn-add-contact" class="btn btn-primary btn-sm" onclick="app.openAddContactModal()">+ Add Contact</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Name</th>
+                  <th>Phone Number</th>
+                  <th>Relationship</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="contacts-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 4: DEVICES TELEMETRY -->
+      <section id="view-devices" class="view-section">
+        <div class="devices-grid">
+          
+          <!-- ESP32 Card -->
+          <div class="device-card glass-panel">
+            <div class="device-header">
+              <div>
+                <div class="device-name">ESP32 Sensing Unit</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">INMP441 Mic (GPIO 14/25/32) & SOS (GPIO 18)</div>
+              </div>
+              <span id="esp32-badge" class="device-type-badge">OFFLINE</span>
+            </div>
+            <div class="device-props-list">
+              <div class="device-prop-row"><span class="prop-name">IP Address:</span><span id="dev-esp32-ip" class="prop-val">--</span></div>
+              <div class="device-prop-row">
+                <span class="prop-name">WiFi RSSI:</span>
+                <span class="prop-val" style="display:flex; align-items:center; gap:8px;">
+                  <span id="dev-esp32-rssi-meter" class="rssi-meter rssi-good"><span class="rssi-bar bar-1"></span><span class="rssi-bar bar-2"></span><span class="rssi-bar bar-3"></span><span class="rssi-bar bar-4"></span></span>
+                  <span id="dev-esp32-rssi">-- dBm</span>
+                </span>
+              </div>
+              <div class="device-prop-row"><span class="prop-name">Uptime:</span><span id="dev-esp32-uptime" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Last Heartbeat:</span><span id="dev-esp32-hb" class="prop-val">Never</span></div>
+              <div class="device-prop-row"><span class="prop-name">INMP441 Microphone:</span><span id="dev-esp32-mic" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Physical SOS Button:</span><span id="dev-esp32-sos" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Firmware Version:</span><span class="prop-val">v1.1.0</span></div>
+            </div>
+          </div>
+
+          <!-- ESP8266 Card -->
+          <div class="device-card glass-panel">
+            <div class="device-header">
+              <div>
+                <div class="device-name">ESP8266 Alert Unit</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">WS2812 RGB (D2/GPIO 4) & Buzzer (D1/GPIO 5)</div>
+              </div>
+              <span id="esp8266-badge" class="device-type-badge">OFFLINE</span>
+            </div>
+            <div class="device-props-list">
+              <div class="device-prop-row"><span class="prop-name">IP Address:</span><span id="dev-esp8266-ip" class="prop-val">--</span></div>
+              <div class="device-prop-row">
+                <span class="prop-name">WiFi RSSI:</span>
+                <span class="prop-val" style="display:flex; align-items:center; gap:8px;">
+                  <span id="dev-esp8266-rssi-meter" class="rssi-meter rssi-good"><span class="rssi-bar bar-1"></span><span class="rssi-bar bar-2"></span><span class="rssi-bar bar-3"></span><span class="rssi-bar bar-4"></span></span>
+                  <span id="dev-esp8266-rssi">-- dBm</span>
+                </span>
+              </div>
+              <div class="device-prop-row"><span class="prop-name">Uptime:</span><span id="dev-esp8266-uptime" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Last Heartbeat:</span><span id="dev-esp8266-hb" class="prop-val">Never</span></div>
+              <div class="device-prop-row"><span class="prop-name">WS2812 RGB Ring:</span><span id="dev-esp8266-rgb" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Acoustic Buzzer:</span><span id="dev-esp8266-buzzer" class="prop-val">--</span></div>
+              <div class="device-prop-row"><span class="prop-name">Firmware Version:</span><span class="prop-val">v1.1.0</span></div>
+            </div>
+          </div>
+
+          <!-- Laptop Hub Card -->
+          <div class="device-card glass-panel">
+            <div class="device-header">
+              <div>
+                <div class="device-name">Laptop Intelligence Hub</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">YAMNet 16kHz & WhatsApp Dispatcher</div>
+              </div>
+              <span class="device-type-badge" style="background:rgba(16,185,129,0.1); color:#34d399;">RUNNING</span>
+            </div>
+            <div class="device-props-list">
+              <div class="device-prop-row"><span class="prop-name">Model Engine:</span><span class="prop-val">YAMNet (16kHz Mono)</span></div>
+              <div class="device-prop-row"><span class="prop-name">Audio Window:</span><span class="prop-val">0.975s (15600 samples)</span></div>
+              <div class="device-prop-row"><span class="prop-name">Audio Hop Step:</span><span class="prop-val">0.500s (50% Overlap)</span></div>
+              <div class="device-prop-row"><span class="prop-name">WhatsApp Provider:</span><span id="dev-hub-provider" class="prop-val">mock</span></div>
+              <div class="device-prop-row"><span class="prop-name">Server Host:</span><span class="prop-val">0.0.0.0:8000</span></div>
+              <div class="device-prop-row"><span class="prop-name">API Version:</span><span class="prop-val">v1.1.0</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 5: SETTINGS -->
+      <section id="view-settings" class="view-section">
+        <div class="glass-panel" style="padding:28px; max-width:800px;">
+          <div class="panel-header" style="margin-bottom:20px;">
+            <span class="panel-title">System & Threshold Configuration</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <div class="form-group">
+              <label class="form-label">YAMNet Valid Confidence Threshold</label>
+              <input type="text" class="form-input" value="0.65 (Configurable in .env)" readonly>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Minimum confidence score required for an event candidate to enter the temporal validation gate.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Temporal Window Confirmations</label>
+              <input type="text" class="form-input" value="2 confirmations out of 3 consecutive windows" readonly>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Enforces persistence across sliding audio windows to prevent transient false alerts.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Event Alert Cooldown (Seconds)</label>
+              <input type="text" class="form-input" value="25 seconds" readonly>
+              <span style="font-size:0.75rem; color:var(--text-muted);">Prevents WhatsApp notification spamming while keeping continuous visual indicator illuminated.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: DEV TEST BENCH -->
+      <section id="view-dev-test" class="view-section">
+        <div class="glass-panel" style="padding:28px; border:1px solid rgba(234,179,8,0.4);">
+          <div class="panel-header" style="margin-bottom:16px;">
+            <span class="panel-title" style="color:#facc15;">DEVELOPMENT & HARDWARE BENCH TEST</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:24px;">
+            Trigger synthetic hardware events, RGB states, buzzer patterns, and WhatsApp notifications to verify the end-to-end pipeline without needing live physical sound.
+          </p>
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px;">
+            <button class="btn btn-outline" style="border-color:#ffffff; color:#ffffff;" onclick="app.devTrigger('TEST_NORMAL')">⚪ TEST NORMAL (WHITE LED)</button>
+            <button class="btn btn-outline" style="border-color:#38bdf8; color:#38bdf8;" onclick="app.devTrigger('TEST_MODERATE_BUZZER')">🔔 TEST MODERATE BUZZER</button>
+            <button class="btn btn-outline" style="border-color:#f87171; color:#f87171;" onclick="app.devTrigger('TEST_CRITICAL_BUZZER')">📢 TEST CRITICAL BUZZER</button>
+            <button class="btn btn-outline" style="border-color:#facc15; color:#facc15;" onclick="app.devTrigger('TEST_WARNING')">🟡 TEST DOORBELL (AMBER)</button>
+            <button class="btn btn-outline" style="border-color:#22d3ee; color:#22d3ee;" onclick="app.devTrigger('TEST_WATER')">💧 TEST WATER (CYAN)</button>
+            <button class="btn btn-outline" style="border-color:#c084fc; color:#c084fc;" onclick="app.devTrigger('TEST_DOG_BARK')">🐕 TEST DOG BARK (VIOLET)</button>
+            <button class="btn btn-outline" style="border-color:#ef4444; color:#ef4444;" onclick="app.devTrigger('TEST_SMOKE_ALARM')">🔥 TEST SMOKE ALARM (RED)</button>
+            <button class="btn btn-outline" style="border-color:#fb7185; color:#fb7185;" onclick="app.devTrigger('TEST_GLASS_BREAK')">✨ TEST GLASS BREAK (SPARKLE)</button>
+            <button class="btn btn-danger" onclick="app.devTrigger('TEST_SOS')">🚨 TEST EMERGENCY SOS</button>
+            <button class="btn btn-outline" onclick="app.devTrigger('TEST_ESP32')">📡 SIMULATE ESP32</button>
+            <button class="btn btn-outline" onclick="app.devTrigger('TEST_ESP8266')">💡 SIMULATE ESP8266</button>
+            <button class="btn btn-outline" onclick="app.devTrigger('TEST_WHATSAPP')">📲 TEST WHATSAPP</button>
+          </div>
+          <div style="margin-top:24px; padding:16px; background:rgba(0,0,0,0.4); border-radius:8px; font-family:var(--font-mono); font-size:0.8rem; color:#94a3b8; max-height:160px; overflow-y:auto;" id="dev-console-log">
+            [DevBench] Ready for test operations.
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Contact Modal -->
+  <div id="contact-modal" class="modal-overlay">
+    <div class="modal-card glass-panel">
+      <h3 style="color:#fff;" id="modal-title">Add Emergency Contact</h3>
+      <form id="contact-form" onsubmit="app.saveContact(event)">
+        <input type="hidden" id="contact-id">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="contact-name" class="form-input" required placeholder="e.g. Caregiver Sarah">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number (with Country Code)</label>
+          <input type="text" id="contact-phone" class="form-input" required placeholder="e.g. +919876543210 or +14155552671">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Relationship</label>
+          <input type="text" id="contact-relation" class="form-input" placeholder="e.g. Primary Caregiver, Family">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority (1 = Highest, 5 = Lowest)</label>
+          <input type="number" id="contact-priority" class="form-input" min="1" max="5" value="1">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:12px;">
+          <button type="button" class="btn btn-outline" onclick="app.closeContactModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Test Notification Confirmation Modal -->
+  <div id="test-notify-modal" class="modal-overlay">
+    <div class="modal-card glass-panel">
+      <h3 style="color:#facc15;">Send Test Notification?</h3>
+      <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5;">
+        This will dispatch a simulated test emergency notification to all active verified emergency contacts.
+      </p>
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:12px;">
+        <button type="button" class="btn btn-outline" onclick="app.closeTestModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="app.confirmSendTestNotification()">Send Test</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
